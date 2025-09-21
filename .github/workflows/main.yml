@@ -14,6 +14,9 @@ jobs:
       run:
         working-directory: backend
     steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+        
       - name: print test
         run: echo "Hello, backend!"
 
@@ -24,5 +27,7 @@ jobs:
       run:
         working-directory: frontend
     steps:
-    - name: print test
-      run: echo "Hello frontend!"
+      - name: checkout repository
+        uses: actions/checkout@v4
+      - name: print test
+        run: echo "Hello frontend!"
