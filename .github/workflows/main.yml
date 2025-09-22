@@ -1,0 +1,33 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # --- Backend pipeline ---
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+        
+      - name: print test
+        run: echo "Hello, backend!"
+
+  # --- Frontend pipeline ---
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+      - name: print test
+        run: echo "Hello frontend!"
