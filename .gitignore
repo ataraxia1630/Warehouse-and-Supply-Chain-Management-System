@@ -1,0 +1,77 @@
+# =========================
+# General
+# =========================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# =========================
+# Node.js (Backend + Frontend)
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build output
+dist/
+build/
+.cache/
+.next/
+out/
+coverage/
+
+# Jest
+coverage/
+*.lcov
+
+# =========================
+# Prisma
+# =========================
+prisma/migrations/
+.prisma/
+
+# =========================
+# Logs
+# =========================
+logs
+*.log
+logs/**/*.log
+
+# =========================
+# Docker
+# =========================
+/docker-data
+/.docker
+*.pid
+*.seed
+docker-compose.override.yml
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.iml
+*.sublime-workspace
+*.sublime-project
+
+# =========================
+# Misc
+# =========================
+/tmp
