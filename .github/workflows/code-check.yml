@@ -5,28 +5,38 @@ on:
   push:
     branches:
       - "**"
-    paths:
-      - "src/**"
+  pull_request:
+    branches:
+      - "**"
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        folder: [backend]
+
     name: check
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
+          node-version: "20"
           cache: npm
 
       - name: Install dependencies
         run: npm ci
+        working-directory: ${{ matrix.folder }}
 
       - name: Type checking
         run: npx tsc --noEmit
+        working-directory: ${{ matrix.folder }}
 
       - name: ESlint Checking
         run: npm run lint
+        working-directory: ${{ matrix.folder }}
 
       - name: Prettier Checking
         run: npm run format:check
+        working-directory: ${{ matrix.folder }}
