@@ -7,8 +7,12 @@ on:
     branches: [main]
 
 jobs:
+  code-check:
+    uses: ./.github/workflows/code-check.yml
+
   # --- Backend pipeline ---
   backend:
+    needs: code-check
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -16,12 +20,25 @@ jobs:
     steps:
       - name: checkout repository
         uses: actions/checkout@v4
-        
-      - name: print test
-        run: echo "Hello, backend!"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build --if-present
+
+      - name: Run tests
+        run: npm run test
 
   # --- Frontend pipeline ---
   frontend:
+    needs: code-check
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -29,5 +46,9 @@ jobs:
     steps:
       - name: checkout repository
         uses: actions/checkout@v4
-      - name: print test
-        run: echo "Hello frontend!"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm

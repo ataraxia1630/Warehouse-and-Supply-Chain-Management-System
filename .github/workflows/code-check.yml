@@ -1,0 +1,32 @@
+name: Code check
+
+on:
+  workflow_call:
+  push:
+    branches:
+      - "**"
+    paths:
+      - "src/**"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    name: check
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type checking
+        run: npx tsc --noEmit
+
+      - name: ESlint Checking
+        run: npm run lint
+
+      - name: Prettier Checking
+        run: npm run format:check
