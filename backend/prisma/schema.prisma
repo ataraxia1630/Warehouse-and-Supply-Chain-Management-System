@@ -7,6 +7,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/**
+ * ENUMS
+ */
 enum OrderStatus {
   pending
   approved
@@ -52,95 +55,106 @@ enum UserRole {
   partner
 }
 
+/**
+ * MODELS
+ */
 model Warehouse {
-  id        String     @id @default(uuid()) @db.Uuid
-  code      String     @unique @db.VarChar(50)
-  name      String     @db.VarChar(200)
-  address   String?    @db.Text
+  id        String   @id @default(uuid()) @db.Uuid
+  code      String   @unique @db.VarChar(50)
+  name      String   @db.VarChar(200)
+  address   String?
   metadata  Json?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   locations Location[]
 }
 
 model Location {
-  id         String  @id @default(uuid()) @db.Uuid
-  warehouse  Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
-  warehouseId String @db.Uuid
-  code       String  @db.VarChar(100)
-  name       String? @db.VarChar(200)
-  capacity   Int?
-  type       String? @db.VarChar(50)
-  properties Json?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String   @id @default(uuid()) @db.Uuid
+  warehouseId String   @db.Uuid
+  code        String   @db.VarChar(100)
+  name        String?  @db.VarChar(200)
+  capacity    Int?
+  type        String?  @db.VarChar(50)
+  properties  Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  inventory  Inventory[]
+  warehouse      Warehouse       @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  inventory      Inventory[]
+  stockMovesFrom StockMovement[] @relation("FromLoc")
+  stockMovesTo   StockMovement[] @relation("ToLoc")
+
   @@unique([warehouseId, code])
   @@index([warehouseId], name: "idx_location_warehouse")
 }
 
 model ProductCategory {
-  id        String            @id @default(uuid()) @db.Uuid
-  name      String            @unique @db.VarChar(200)
-  parent    ProductCategory?  @relation("CategoryChildren", fields: [parentId], references: [id])
-  parentId  String?           @db.Uuid
-  metadata  Json?
-  children  ProductCategory[] @relation("CategoryChildren")
-  products  Product[]
+  id       String  @id @default(uuid()) @db.Uuid
+  name     String  @unique @db.VarChar(200)
+  parentId String? @db.Uuid
+  metadata Json?
+
+  parent   ProductCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children ProductCategory[] @relation("CategoryHierarchy")
+  products Product[]
 }
 
 model Product {
-  id          String         @id @default(uuid()) @db.Uuid
-  sku         String         @unique @db.VarChar(100)
-  name        String         @db.VarChar(300)
-  category    ProductCategory? @relation(fields: [categoryId], references: [id])
-  categoryId  String?        @db.Uuid
-  unit        String         @db.VarChar(50)
-  barcode     String?        @db.VarChar(200)
-  parameters  Json?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  id         String   @id @default(uuid()) @db.Uuid
+  sku        String   @unique @db.VarChar(100)
+  name       String   @db.VarChar(300)
+  categoryId String?  @db.Uuid
+  unit       String   @db.VarChar(50)
+  barcode    String?  @db.VarChar(200)
+  parameters Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  batches     ProductBatch[]
-  poItems     PurchaseOrderItem[]
-  soItems     SalesOrderItem[]
-  stockMovements StockMovement[]
+  category      ProductCategory?    @relation(fields: [categoryId], references: [id])
+  batches       ProductBatch[]
+  stockMoves    StockMovement[]
+  poItems       PurchaseOrderItem[]
+  soItems       SalesOrderItem[]
+  shipmentItems ShipmentItem[]
 
   @@index([sku], name: "idx_product_sku")
 }
 
 model ProductBatch {
-  id               String   @id @default(uuid()) @db.Uuid
-  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId        String   @db.Uuid
-  batchNo          String?  @db.VarChar(200)
-  quantity         Int      @default(0)
+  id               String    @id @default(uuid()) @db.Uuid
+  productId        String    @db.Uuid
+  batchNo          String?
+  quantity         Int       @default(0)
   manufactureDate  DateTime?
   expiryDate       DateTime?
-  barcodeOrQr      String?  @db.VarChar(300)
-  inboundReceiptId String?  @db.Uuid
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  barcodeOrQr      String?
+  inboundReceiptId String?   @db.Uuid
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  inventory         Inventory[]
-  stockMovements    StockMovement[]
-  purchaseOrderItem PurchaseOrderItem?
-  salesOrderItem    SalesOrderItem?
+  product       Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  inventory     Inventory[]
+  stockMoves    StockMovement[]
+  poItems       PurchaseOrderItem[]
+  soItems       SalesOrderItem[]
+  shipmentItems ShipmentItem[]
+
   @@unique([productId, batchNo])
   @@index([productId], name: "idx_productbatch_product")
 }
 
 model Inventory {
-  id              String   @id @default(uuid()) @db.Uuid
-  productBatch    ProductBatch @relation(fields: [productBatchId], references: [id], onDelete: Cascade)
-  productBatchId  String   @db.Uuid
-  location        Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  locationId      String   @db.Uuid
-  availableQty    Int      @default(0)
-  reservedQty     Int      @default(0)
-  updatedAt       DateTime @default(now())
+  id             String   @id @default(uuid()) @db.Uuid
+  productBatchId String   @db.Uuid
+  locationId     String   @db.Uuid
+  availableQty   Int      @default(0)
+  reservedQty    Int      @default(0)
+  updatedAt      DateTime @default(now())
+
+  productBatch ProductBatch @relation(fields: [productBatchId], references: [id], onDelete: Cascade)
+  location     Location     @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
   @@unique([productBatchId, locationId])
   @@index([locationId], name: "idx_inventory_location")
@@ -148,24 +162,23 @@ model Inventory {
 }
 
 model StockMovement {
-  id            String            @id @default(uuid()) @db.Uuid
-  movementType  StockMovementType
-  productBatch  ProductBatch?     @relation(fields: [productBatchId], references: [id])
-  productBatchId String?          @db.Uuid
-  product       Product?          @relation(fields: [productId], references: [id])
-  productId     String?           @db.Uuid
-  fromLocation  Location?         @relation("FromLoc", fields: [fromLocationId], references: [id])
-  fromLocationId String?          @db.Uuid
-  toLocation    Location?         @relation("ToLoc", fields: [toLocationId], references: [id])
-  toLocationId  String?           @db.Uuid
-  quantity      Int
-  reference     String?           @db.VarChar(200)
-  note          String?           @db.Text
-  createdBy     User?            @relation(fields: [createdById], references: [id])
-  createdById   String?          @db.Uuid
-  createdAt     DateTime         @default(now())
+  id             String            @id @default(uuid()) @db.Uuid
+  movementType   StockMovementType
+  productBatchId String?           @db.Uuid
+  productId      String?           @db.Uuid
+  fromLocationId String?           @db.Uuid
+  toLocationId   String?           @db.Uuid
+  quantity       Int
+  reference      String?
+  note           String?
+  createdById    String?           @db.Uuid
+  createdAt      DateTime          @default(now())
 
-  @@index([productId], name: "idx_stock_movements_product")
+  productBatch ProductBatch? @relation(fields: [productBatchId], references: [id])
+  product      Product?      @relation(fields: [productId], references: [id])
+  fromLocation Location?     @relation("FromLoc", fields: [fromLocationId], references: [id])
+  toLocation   Location?     @relation("ToLoc", fields: [toLocationId], references: [id])
+  createdBy    User?         @relation("UserStockMovements", fields: [createdById], references: [id])
 }
 
 model Supplier {
@@ -173,7 +186,7 @@ model Supplier {
   code        String?  @unique @db.VarChar(100)
   name        String   @db.VarChar(300)
   contactInfo Json?
-  address     String?  @db.Text
+  address     String?
   createdAt   DateTime @default(now())
 
   purchaseOrders PurchaseOrder[]
@@ -184,118 +197,127 @@ model Customer {
   code        String?  @unique @db.VarChar(100)
   name        String   @db.VarChar(300)
   contactInfo Json?
-  address     String?  @db.Text
+  address     String?
   createdAt   DateTime @default(now())
 
   salesOrders SalesOrder[]
 }
 
 model PurchaseOrder {
-  id           String                 @id @default(uuid()) @db.Uuid
-  poNo         String                 @unique @db.VarChar(100)
-  supplier     Supplier?              @relation(fields: [supplierId], references: [id])
-  supplierId   String?                @db.Uuid
-  status       PoStatus               @default(draft)
-  placedAt     DateTime?
+  id              String    @id @default(uuid()) @db.Uuid
+  poNo            String    @unique @db.VarChar(100)
+  supplierId      String?   @db.Uuid
+  status          PoStatus  @default(draft)
+  placedAt        DateTime?
   expectedArrival DateTime?
-  totalAmount  Decimal?               @db.Decimal(15,2)
-  notes        String?                @db.Text
-  createdBy    User?                  @relation(fields: [createdById], references: [id])
-  createdById  String?                @db.Uuid
-  createdAt    DateTime               @default(now())
-  updatedAt    DateTime               @updatedAt
+  totalAmount     Decimal?  @db.Decimal(15, 2)
+  notes           String?
+  createdById     String?   @db.Uuid
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  items        PurchaseOrderItem[]
+  supplier  Supplier?           @relation(fields: [supplierId], references: [id])
+  createdBy User?               @relation("UserCreatedPO", fields: [createdById], references: [id])
+  items     PurchaseOrderItem[]
+
   @@index([status], name: "idx_po_status")
 }
 
 model PurchaseOrderItem {
-  id               String         @id @default(uuid()) @db.Uuid
-  purchaseOrder    PurchaseOrder  @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
-  purchaseOrderId  String         @db.Uuid
-  product          Product        @relation(fields: [productId], references: [id])
-  productId        String         @db.Uuid
-  productBatch     ProductBatch?  @relation(fields: [productBatchId], references: [id])
-  productBatchId   String?        @db.Uuid
-  qtyOrdered       Int
-  qtyReceived      Int             @default(0)
-  unitPrice        Decimal?        @db.Decimal(12,2)
-  lineTotal        Decimal?        @db.Decimal(15,2)
-  remark           String?
+  id              String   @id @default(uuid()) @db.Uuid
+  purchaseOrderId String   @db.Uuid
+  productId       String   @db.Uuid
+  productBatchId  String?  @db.Uuid
+  qtyOrdered      Int
+  qtyReceived     Int      @default(0)
+  unitPrice       Decimal? @db.Decimal(12, 2)
+  lineTotal       Decimal? @db.Decimal(15, 2)
+  remark          String?
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  product       Product       @relation(fields: [productId], references: [id])
+  productBatch  ProductBatch? @relation(fields: [productBatchId], references: [id])
 }
 
 model SalesOrder {
-  id         String     @id @default(uuid()) @db.Uuid
-  soNo       String     @unique @db.VarChar(100)
-  customer   Customer?  @relation(fields: [customerId], references: [id])
-  customerId String?    @db.Uuid
-  status     OrderStatus @default(pending)
-  placedAt   DateTime?
-  totalAmount Decimal?  @db.Decimal(15,2)
-  createdBy  User?      @relation(fields: [createdById], references: [id])
-  createdById String?   @db.Uuid
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id          String      @id @default(uuid()) @db.Uuid
+  soNo        String      @unique @db.VarChar(100)
+  customerId  String?     @db.Uuid
+  status      OrderStatus @default(pending)
+  placedAt    DateTime?
+  totalAmount Decimal?    @db.Decimal(15, 2)
+  createdById String?     @db.Uuid
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
-  items      SalesOrderItem[]
+  customer     Customer?        @relation(fields: [customerId], references: [id])
+  createdBy    User?            @relation("UserCreatedSO", fields: [createdById], references: [id])
+  items        SalesOrderItem[]
+  ShipmentItem ShipmentItem[]
+
   @@index([status], name: "idx_so_status")
 }
 
 model SalesOrderItem {
-  id            String       @id @default(uuid()) @db.Uuid
-  salesOrder    SalesOrder   @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
-  salesOrderId  String       @db.Uuid
-  product       Product      @relation(fields: [productId], references: [id])
-  productId     String       @db.Uuid
-  productBatch  ProductBatch?@relation(fields: [productBatchId], references: [id])
-  productBatchId String?     @db.Uuid
-  qty           Int
-  unitPrice     Decimal?     @db.Decimal(12,2)
-  lineTotal     Decimal?     @db.Decimal(15,2)
+  id             String   @id @default(uuid()) @db.Uuid
+  salesOrderId   String   @db.Uuid
+  productId      String   @db.Uuid
+  productBatchId String?  @db.Uuid
+  qty            Int
+  unitPrice      Decimal? @db.Decimal(12, 2)
+  lineTotal      Decimal? @db.Decimal(15, 2)
+
+  salesOrder   SalesOrder    @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
+  product      Product       @relation(fields: [productId], references: [id])
+  productBatch ProductBatch? @relation(fields: [productBatchId], references: [id])
 }
 
 model Shipment {
-  id               String     @id @default(uuid()) @db.Uuid
-  shipmentNo       String?    @unique @db.VarChar(120)
-  carrier          String?    @db.VarChar(200)
-  trackingCode     String?    @db.VarChar(200)
-  status           ShipmentStatus @default(preparing)
-  shippedAt        DateTime?
-  deliveredAt      DateTime?
+  id                String         @id @default(uuid()) @db.Uuid
+  shipmentNo        String?        @unique @db.VarChar(120)
+  carrier           String?
+  trackingCode      String?
+  status            ShipmentStatus @default(preparing)
+  shippedAt         DateTime?
+  deliveredAt       DateTime?
   estimatedDelivery DateTime?
-  notes            String?
-  items            ShipmentItem[]
+  notes             String?
+
+  items          ShipmentItem[]
+  trackingEvents ShipmentTrackingEvent[]
 }
 
 model ShipmentItem {
-  id            String     @id @default(uuid()) @db.Uuid
-  shipment      Shipment   @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
-  shipmentId    String     @db.Uuid
-  salesOrder    SalesOrder? @relation(fields: [salesOrderId], references: [id])
-  salesOrderId  String?     @db.Uuid
-  product       Product?    @relation(fields: [productId], references: [id])
-  productId     String?     @db.Uuid
-  productBatch  ProductBatch? @relation(fields: [productBatchId], references: [id])
-  productBatchId String?    @db.Uuid
-  qty           Int
+  id             String  @id @default(uuid()) @db.Uuid
+  shipmentId     String  @db.Uuid
+  salesOrderId   String? @db.Uuid
+  productId      String? @db.Uuid
+  productBatchId String? @db.Uuid
+  qty            Int
+
+  shipment     Shipment      @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  salesOrder   SalesOrder?   @relation(fields: [salesOrderId], references: [id])
+  product      Product?      @relation(fields: [productId], references: [id])
+  productBatch ProductBatch? @relation(fields: [productBatchId], references: [id])
 }
 
 model ShipmentTrackingEvent {
   id         String   @id @default(uuid()) @db.Uuid
-  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
   shipmentId String   @db.Uuid
   eventTime  DateTime @default(now())
-  location   String?  @db.VarChar(300)
-  statusText String?  @db.VarChar(300)
+  location   String?
+  statusText String?
   rawPayload Json?
+
+  shipment Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
 }
 
 model User {
   id           String   @id @default(uuid()) @db.Uuid
   username     String   @unique @db.VarChar(150)
-  fullName     String?  @db.VarChar(300)
-  passwordHash String?  @db.VarChar(300)
-  email        String?  @unique @db.VarChar(300)
+  fullName     String?
+  passwordHash String?
+  email        String?  @unique
   role         UserRole @default(warehouse_staff)
   active       Boolean  @default(true)
   metadata     Json?
@@ -303,29 +325,26 @@ model User {
 
   purchaseOrders PurchaseOrder[] @relation("UserCreatedPO")
   salesOrders    SalesOrder[]    @relation("UserCreatedSO")
-  stockMovements StockMovement[]
-  auditLogs      AuditLog[]      @relation("UserAudit")
+  stockMovements StockMovement[] @relation("UserStockMovements")
 }
 
 model AuditLog {
-  id           String   @id @default(uuid()) @db.Uuid
-  entityType   String   @db.VarChar(100)
-  entityId     String?  @db.Uuid
-  action       String   @db.VarChar(100)
-  payload      Json?
-  performedBy  User?    @relation("UserAudit", fields: [performedById], references: [id])
-  performedById String? @db.Uuid
-  performedAt  DateTime @default(now())
+  id          String   @id @default(uuid()) @db.Uuid
+  entityType  String?
+  entityId    String?
+  action      String?
+  payload     Json?
+  performedBy String?  @db.Uuid
+  performedAt DateTime @default(now())
 }
 
 model Alert {
-  id          String   @id @default(uuid()) @db.Uuid
-  type        String   @db.VarChar(100)
-  referenceId String?  @db.Uuid
+  id          String    @id @default(uuid()) @db.Uuid
+  type        String?
+  referenceId String?   @db.Uuid
   payload     Json?
-  severity    String?  @db.VarChar(20)
-  resolved    Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  severity    String?
+  resolved    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
   resolvedAt  DateTime?
 }
-
