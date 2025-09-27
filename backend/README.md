@@ -1,98 +1,113 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+IN DEVELOPING...
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+🚀 Backend Setup – Warehouse and Supply Chain Management System
+1. Yêu cầu môi trường
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Docker Desktop
+ (>= 4.x)
 
-## Description
+Node.js
+ (>= 20 LTS) + npm
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Git
 
-## Project setup
+Editor khuyến nghị: VS Code + plugin Prisma và NestJS
 
-```bash
-$ npm install
-```
+👉 Không cần cài PostgreSQL hay MongoDB trực tiếp trên máy, mọi thứ đã containerized.
 
-## Compile and run the project
+2. Clone repo
+git clone <repo-url>
+cd Warehouse-and-Supply-Chain-Management-System
 
-```bash
-# development
-$ npm run start
+3. Chuẩn bị biến môi trường
 
-# watch mode
-$ npm run start:dev
+Tạo file .env trong thư mục backend dựa trên mẫu:
 
-# production mode
-$ npm run start:prod
-```
+cp backend/.env.example backend/.env
 
-## Run tests
+4. Khởi động dịch vụ
+docker compose up --build
 
-```bash
-# unit tests
-$ npm run test
 
-# e2e tests
-$ npm run test:e2e
+Các service chính:
 
-# test coverage
-$ npm run test:cov
-```
+Postgres: localhost:5432
 
-## Deployment
+pgAdmin: http://localhost:5050
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Email: admin@admin.com
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Password: admin
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+MongoDB: localhost:27017
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Mongo Express: http://localhost:8081
 
-## Resources
+Backend (NestJS): http://localhost:3000
 
-Check out a few resources that may come in handy when working with NestJS:
+5. Làm việc với Prisma
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Vào container backend:
 
-## Support
+docker exec -it backend sh
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
-## Stay in touch
+Chạy migrate:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+npx prisma migrate dev
 
-## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Sinh Prisma Client:
+
+npx prisma generate
+
+
+Mở Prisma Studio (GUI):
+
+npx prisma studio
+
+6. Cấu trúc dự án
+backend/
+ ┣ src/
+ ┃ ┣ modules/         # Các module nghiệp vụ
+ ┃ ┣ database/        # Prisma service, schemas
+ ┃ ┣ common/          # DTO base, guard, interceptor
+ ┃ ┗ main.ts          # Entrypoint app
+ ┣ prisma/
+ ┃ ┣ schema.prisma    # Định nghĩa schema
+ ┃ ┗ migrations/      # Lưu migration history
+ ┣ .env               # Config env (không commit)
+ ┗ package.json
+
+7. Dev workflow
+
+Phát triển module → code trong src/modules/...
+
+Nếu thay đổi schema:
+
+npx prisma migrate dev
+
+
+Swagger API Docs: http://localhost:3000/api
+
+Test:
+
+npm run test
+npm run test:e2e
+
+8. Troubleshooting
+
+Kiểm tra container:
+
+docker ps
+
+
+Reset volumes nếu DB lỗi:
+
+docker compose down -v
+docker compose up --build
+
+
+Xem log backend:
+
+docker logs backend
