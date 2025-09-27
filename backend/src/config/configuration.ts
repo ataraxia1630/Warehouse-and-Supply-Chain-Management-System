@@ -5,4 +5,7 @@ export default () => ({
   database: {
     url: process.env.DATABASE_URL,
   },
+  mongo: {
+    url: process.env.MONGO_URL,
+  },
 });
