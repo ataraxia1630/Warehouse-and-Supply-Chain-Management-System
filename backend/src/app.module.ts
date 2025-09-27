@@ -5,6 +5,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config/configuration';
 import { validationSchema } from './config/validation';
 import { MongooseModule } from '@nestjs/mongoose';
+import { InventoryModule } from './modules/inventory/inventory.module';
+import { OrderModule } from './modules/order/order.module';
+import { SupplierModule } from './modules/supplier/supplier.module';
+import { ReportingModule } from './modules/reporting/reporting.module';
 
 @Module({
   imports: [
@@ -20,6 +24,10 @@ import { MongooseModule } from '@nestjs/mongoose';
         uri: configService.get<string>('mongo.url'),
       }),
     }),
+    InventoryModule,
+    OrderModule,
+    SupplierModule,
+    ReportingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
