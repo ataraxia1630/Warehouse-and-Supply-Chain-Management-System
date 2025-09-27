@@ -44,6 +44,18 @@ services:
     depends_on:
       - mongodb
 
+    backend:
+      build: ./backend
+      container_name: backend
+      restart: always
+      ports:
+        - "3000:3000"
+      env_file:
+        - ./backend/.env
+      depends_on:
+        - db
+        - mongodb
+
 volumes:
   db-data:
   mongo-data:
