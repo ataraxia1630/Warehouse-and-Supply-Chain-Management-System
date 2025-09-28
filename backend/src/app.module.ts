@@ -24,7 +24,7 @@ import { AppService } from './app.service';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('mongo.url'),
+        uri: await Promise.resolve(configService.get<string>('mongo.url')),
       }),
     }),
     InventoryModule,

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Document } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { PrismaService } from '../../database/prisma.service';
 
@@ -7,20 +7,19 @@ import { PrismaService } from '../../database/prisma.service';
 export class ReportingService {
   constructor(
     private prisma: PrismaService,
-    @InjectModel('AuditLog') private auditModel: Model<any>,
+    @InjectModel('AuditLog') private auditModel: Model<Document>,
   ) {}
 
   // example: get inventory summary from Postgres
   async inventorySummary() {
-    const query = await this.prisma.inventory.groupBy({
+    return await this.prisma.inventory.groupBy({
       by: ['productBatchId'],
       _sum: { availableQty: true, reservedQty: true },
     });
-    return query;
   }
 
   // query audit logs from Mongo
-  async recentAudit(limit = 50) {
+  async recentAudit(limit = 50): Promise<Document[]> {
     return this.auditModel.find().sort({ performedAt: -1 }).limit(limit).exec();
   }
 }

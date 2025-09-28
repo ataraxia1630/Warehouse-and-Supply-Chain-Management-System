@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../database/prisma.service';
+import { Inventory } from '@prisma/client';
+import { PrismaService } from 'src/database/prisma.service';
 
 @Injectable()
 export class InventoryRepository {
@@ -10,12 +11,12 @@ export class InventoryRepository {
     locationId: string;
     availableQty?: number;
     reservedQty?: number;
-  }) {
-    return this.prisma.inventory.create({ data });
+  }): Promise<Inventory> {
+    return await this.prisma.inventory.create({ data });
   }
 
-  async findAll() {
-    return this.prisma.inventory.findMany({
+  async findAll(): Promise<Inventory[]> {
+    return await this.prisma.inventory.findMany({
       include: {
         productBatch: true,
         location: true,
@@ -23,15 +24,15 @@ export class InventoryRepository {
     });
   }
 
-  async findOne(id: string) {
-    return this.prisma.inventory.findUnique({ where: { id } });
+  async findOne(id: string): Promise<Inventory | null> {
+    return await this.prisma.inventory.findUnique({ where: { id } });
   }
 
-  async update(id: string, data: Partial<any>) {
-    return this.prisma.inventory.update({ where: { id }, data });
+  async update(id: string, data: Partial<Inventory>): Promise<Inventory> {
+    return await this.prisma.inventory.update({ where: { id }, data });
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<void> {
     await this.prisma.inventory.delete({ where: { id } });
   }
 }
