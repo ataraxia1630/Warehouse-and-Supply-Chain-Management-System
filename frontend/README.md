@@ -1,3 +1,5 @@
+
+```
 project-root/
 │── public/ # File tĩnh (index.html, favicon, images...)
 │── src/
@@ -17,3 +19,4 @@ project-root/
 │
 │── package.json
 │── vite.config.js / webpack.config.js
+```
