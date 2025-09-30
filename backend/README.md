@@ -67,6 +67,7 @@ Mở Prisma Studio (GUI):
 npx prisma studio
 
 6. Cấu trúc dự án
+```
 backend/
  ┣ src/
  ┃ ┣ modules/         # Các module nghiệp vụ
@@ -78,8 +79,8 @@ backend/
  ┃ ┗ migrations/      # Lưu migration history
  ┣ .env               # Config env (không commit)
  ┗ package.json
-
-7. Dev workflow
+```
+8. Dev workflow
 
 Phát triển module → code trong src/modules/...
 
