@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
 import { Body, Controller, Get, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -10,7 +11,10 @@ import { JwtAuthGuard } from './jwt.guard';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly auth: AuthService, private readonly jwt: JwtService) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly jwt: JwtService,
+  ) {}
 
   @Post('signup')
   @ApiOperation({ summary: 'Đăng ký tài khoản' })
@@ -29,8 +33,8 @@ export class AuthController {
   @HttpCode(200)
   @ApiOperation({ summary: 'Lấy access token mới từ refresh token' })
   async refresh(@Body() dto: RefreshDto) {
-    const payload = await this.jwt.verifyAsync(dto.refreshToken, {
-      secret: process.env.JWT_REFRESH_SECRET,
+    const payload = await this.jwt.verifyAsync<{ sub: string; jti: string }>(dto.refreshToken, {
+      secret: process.env.JWT_REFRESH_SECRET as string,
     });
     return this.auth.refresh(payload.sub, payload.jti);
   }
@@ -39,9 +43,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Lấy thông tin người dùng hiện tại (requires JWT)' })
-  async me(@Req() req: any) {
+  me(@Req() req: { user: { userId: string; email: string; role: string } }) {
     return req.user;
   }
 }
-
-

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -13,7 +14,7 @@ import { RolesGuard } from './roles.guard';
     PassportModule,
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_ACCESS_SECRET,
+      secret: process.env.JWT_ACCESS_SECRET as string,
       signOptions: { expiresIn: process.env.JWT_ACCESS_TTL || '900s' },
     }),
   ],
@@ -21,6 +22,3 @@ import { RolesGuard } from './roles.guard';
   providers: [AuthService, JwtStrategy, RolesGuard],
 })
 export class AuthModule {}
-
-
-

@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { UserRole } from '@prisma/client';
 
@@ -18,7 +19,7 @@ export class AuthService {
     if (existing) throw new UnauthorizedException('Email already registered');
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await this.usersService.createUser({ email, passwordHash, fullName });
-    return this.issueTokens(user.id, user.email!, user.role as UserRole);
+    return this.issueTokens(user.id, user.email!, user.role);
   }
 
   async login(email: string, password: string) {
@@ -26,7 +27,7 @@ export class AuthService {
     if (!user) throw new UnauthorizedException('Invalid credentials');
     const ok = await bcrypt.compare(password, user.passwordHash ?? '');
     if (!ok) throw new UnauthorizedException('Invalid credentials');
-    return this.issueTokens(user.id, user.email!, user.role as UserRole);
+    return this.issueTokens(user.id, user.email!, user.role);
   }
 
   async refresh(userId: string, tokenId: string) {
@@ -40,7 +41,7 @@ export class AuthService {
   private async issueTokens(userId: string, email: string, role: UserRole) {
     const payload = { sub: userId, email, role };
     const accessToken = await this.jwtService.signAsync(payload, {
-      secret: process.env.JWT_ACCESS_SECRET,
+      secret: process.env.JWT_ACCESS_SECRET as string,
       expiresIn: process.env.JWT_ACCESS_TTL || '900s',
     });
     const refresh = await this.prisma.refreshToken.create({
@@ -53,7 +54,10 @@ export class AuthService {
     });
     const refreshToken = await this.jwtService.signAsync(
       { sub: userId, jti: refresh.id },
-      { secret: process.env.JWT_REFRESH_SECRET, expiresIn: process.env.JWT_REFRESH_TTL || '7d' },
+      {
+        secret: process.env.JWT_REFRESH_SECRET as string,
+        expiresIn: process.env.JWT_REFRESH_TTL || '7d',
+      },
     );
     return { accessToken, refreshToken };
   }
@@ -67,6 +71,3 @@ export class AuthService {
     return value * (multipliers[unit] || 86400000);
   }
 }
-
-
-

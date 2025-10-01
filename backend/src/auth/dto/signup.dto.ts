@@ -16,6 +16,3 @@ export class SignupDto {
   @IsString()
   fullName?: string;
 }
-
-
-

@@ -27,5 +27,3 @@ export class UsersService {
     });
   }
 }
-
-

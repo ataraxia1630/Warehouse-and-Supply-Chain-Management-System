@@ -7,10 +7,8 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     await this.$connect();
   }
 
-  async enableShutdownHooks(app: INestApplication): Promise<void> {
+  enableShutdownHooks(app: INestApplication): void {
     // Rely on Nest's built-in shutdown hooks instead of Prisma-specific beforeExit handler
-    await app.enableShutdownHooks();
+    app.enableShutdownHooks();
   }
 }
-
-
