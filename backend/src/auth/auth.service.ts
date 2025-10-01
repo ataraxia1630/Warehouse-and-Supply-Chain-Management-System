@@ -1,0 +1,72 @@
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { PrismaService } from '../common/prisma/prisma.service';
+import { UserRole } from '@prisma/client';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
+  ) {}
+
+  async signup(email: string, password: string, fullName?: string) {
+    const existing = await this.usersService.findByEmail(email);
+    if (existing) throw new UnauthorizedException('Email already registered');
+    const passwordHash = await bcrypt.hash(password, 10);
+    const user = await this.usersService.createUser({ email, passwordHash, fullName });
+    return this.issueTokens(user.id, user.email!, user.role as UserRole);
+  }
+
+  async login(email: string, password: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) throw new UnauthorizedException('Invalid credentials');
+    const ok = await bcrypt.compare(password, user.passwordHash ?? '');
+    if (!ok) throw new UnauthorizedException('Invalid credentials');
+    return this.issueTokens(user.id, user.email!, user.role as UserRole);
+  }
+
+  async refresh(userId: string, tokenId: string) {
+    const token = await this.prisma.refreshToken.findUnique({ where: { id: tokenId } });
+    if (!token || token.userId !== userId || token.revokedAt) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+    return this.issueTokens(userId, token.userEmail, token.userRole as UserRole);
+  }
+
+  private async issueTokens(userId: string, email: string, role: UserRole) {
+    const payload = { sub: userId, email, role };
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: process.env.JWT_ACCESS_TTL || '900s',
+    });
+    const refresh = await this.prisma.refreshToken.create({
+      data: {
+        userId,
+        userEmail: email,
+        userRole: role,
+        expiresAt: new Date(Date.now() + this.parseTtl(process.env.JWT_REFRESH_TTL || '7d')),
+      },
+    });
+    const refreshToken = await this.jwtService.signAsync(
+      { sub: userId, jti: refresh.id },
+      { secret: process.env.JWT_REFRESH_SECRET, expiresIn: process.env.JWT_REFRESH_TTL || '7d' },
+    );
+    return { accessToken, refreshToken };
+  }
+
+  private parseTtl(ttl: string): number {
+    const match = ttl.match(/^(\d+)([smhd])$/);
+    if (!match) return 7 * 24 * 60 * 60 * 1000;
+    const value = parseInt(match[1], 10);
+    const unit = match[2];
+    const multipliers: Record<string, number> = { s: 1000, m: 60000, h: 3600000, d: 86400000 };
+    return value * (multipliers[unit] || 86400000);
+  }
+}
+
+
+
