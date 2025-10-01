@@ -1,0 +1,49 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
+import { Body, Controller, Get, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { JwtService } from '@nestjs/jwt';
+import { SignupDto } from './dto/signup.dto';
+import { LoginDto } from './dto/login.dto';
+import { RefreshDto } from './dto/refresh.dto';
+import { JwtAuthGuard } from './jwt.guard';
+
+@ApiTags('auth')
+@Controller('auth')
+export class AuthController {
+  constructor(
+    private readonly auth: AuthService,
+    private readonly jwt: JwtService,
+  ) {}
+
+  @Post('signup')
+  @ApiOperation({ summary: 'Đăng ký tài khoản' })
+  async signup(@Body() dto: SignupDto) {
+    return this.auth.signup(dto.email, dto.password, dto.fullName);
+  }
+
+  @Post('login')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Đăng nhập' })
+  async login(@Body() dto: LoginDto) {
+    return this.auth.login(dto.email, dto.password);
+  }
+
+  @Post('refresh')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Lấy access token mới từ refresh token' })
+  async refresh(@Body() dto: RefreshDto) {
+    const payload = await this.jwt.verifyAsync<{ sub: string; jti: string }>(dto.refreshToken, {
+      secret: process.env.JWT_REFRESH_SECRET as string,
+    });
+    return this.auth.refresh(payload.sub, payload.jti);
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Lấy thông tin người dùng hiện tại (requires JWT)' })
+  me(@Req() req: { user: { userId: string; email: string; role: string } }) {
+    return req.user;
+  }
+}

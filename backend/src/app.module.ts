@@ -11,6 +11,9 @@ import { SupplierModule } from './modules/supplier/supplier.module';
 import { ReportingModule } from './modules/reporting/reporting.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { PrismaModule } from './common/prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -20,6 +23,7 @@ import { AppService } from './app.service';
       validationSchema,
     }),
     DatabaseModule,
+    PrismaModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -31,6 +35,8 @@ import { AppService } from './app.service';
     OrderModule,
     SupplierModule,
     ReportingModule,
+    UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
