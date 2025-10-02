@@ -144,13 +144,12 @@ Register Server → Connection:
 
 ### Mongo Express – truy cập MongoDB (tùy chọn)
 - URL: http://localhost:8081
-- Username: `mongo_user`, Password: `mongo_pass`
+- Username: `admin`, Password: `pass`
 
-### Quick Setup Checklist
+### Setup Checklist
 - [ ] Clone repo
 - [ ] Copy `.env.example` to `.env`
 - [ ] Run `docker compose up --build`
-- [ ] Wait for "Nest application successfully started" in logs
-- [ ] Test: http://localhost:3000 (should return "Hello World!")
+- [ ] Chờ thông thông báo loglog "Nest application successfully started"
+- [ ] Test: http://localhost:3000 (Return "Hello World!")
 - [ ] Test Swagger: http://localhost:3000/api
-- [ ] Test Auth: POST to `/auth/signup` with new email
