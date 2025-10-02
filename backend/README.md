@@ -22,6 +22,11 @@ Tạo file `.env` trong thư mục `backend` dựa trên mẫu:
 cp backend/.env.example backend/.env
 ```
 
+**Lưu ý quan trọng:**
+- File `.env.example` đã chứa đầy đủ các biến cần thiết (JWT, Database)
+- Không cần chỉnh sửa gì thêm cho development
+- Chỉ cần copy và chạy `docker compose up --build`
+
 ### Khởi động dịch vụ
 ```bash
 docker compose up --build
@@ -83,19 +88,43 @@ npm run test:e2e
 ```
 
 ### Troubleshooting
-- Kiểm tra container:
+
+#### Lỗi thường gặp:
+
+**1. "JWT_ACCESS_SECRET is required"**
 ```bash
-docker ps
+# Kiểm tra file .env có đầy đủ biến JWT không
+cat backend/.env | grep JWT
+# Nếu thiếu, copy lại từ .env.example
+cp backend/.env.example backend/.env
 ```
-- Reset volumes nếu DB lỗi:
+
+**2. Backend không khởi động được**
 ```bash
+# Kiểm tra container status
+docker ps
+# Xem log chi tiết
+docker logs backend --tail 50
+```
+
+**3. Database connection failed**
+```bash
+# Reset volumes và khởi động lại
 docker compose down -v
 docker compose up --build
 ```
-- Xem log backend:
+
+**4. Migration errors**
 ```bash
-docker logs backend
+# Vào container và chạy migrate
+docker exec -it backend sh
+npx prisma migrate deploy
 ```
+
+#### Commands hữu ích:
+- Kiểm tra container: `docker ps`
+- Xem log backend: `docker logs backend`
+- Restart backend: `docker compose restart backend`
 
 ---
 
@@ -112,3 +141,16 @@ Chỉ để test nhanh API, không chỉnh sửa cấu hình hiện có.
 ### pgAdmin – đăng ký Postgres (tùy chọn)
 Register Server → Connection:
 - Host: `db`, Port: `5432`, DB: `warehouse_db`, User: `warehouse_user`, Password: `warehouse_pass`
+
+### Mongo Express – truy cập MongoDB (tùy chọn)
+- URL: http://localhost:8081
+- Username: `mongo_user`, Password: `mongo_pass`
+
+### Quick Setup Checklist
+- [ ] Clone repo
+- [ ] Copy `.env.example` to `.env`
+- [ ] Run `docker compose up --build`
+- [ ] Wait for "Nest application successfully started" in logs
+- [ ] Test: http://localhost:3000 (should return "Hello World!")
+- [ ] Test Swagger: http://localhost:3000/api
+- [ ] Test Auth: POST to `/auth/signup` with new email
