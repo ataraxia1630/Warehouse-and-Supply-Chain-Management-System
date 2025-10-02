@@ -41,7 +41,21 @@ Các service chính:
 - Swagger API Docs: http://localhost:3000/api
 
 ### Làm việc với Prisma
-Vào container backend:
+
+**⚠️ QUAN TRỌNG: Sau khi pull code mới có schema changes, phải chạy 3 lệnh này:**
+
+```bash
+# Bước 1: Generate Prisma Client (khi có model mới)
+docker compose exec -T backend sh -lc "npx prisma generate"
+
+# Bước 2: Apply migration (tạo bảng mới trong DB)
+docker compose exec -T backend sh -lc "npx prisma migrate deploy"
+
+# Bước 3: Restart backend để load code mới
+docker compose restart backend
+```
+
+**Hoặc vào container để làm việc:**
 ```bash
 docker exec -it backend sh
 ```
@@ -104,7 +118,7 @@ cp backend/.env.example backend/.env
 # Kiểm tra container status
 docker ps
 # Xem log chi tiết
-docker logs backend --tail 50
+docker logs backend --tail 50 #xem log 50 dòng cuối
 ```
 
 **3. Database connection failed**
@@ -119,6 +133,15 @@ docker compose up --build
 # Vào container và chạy migrate
 docker exec -it backend sh
 npx prisma migrate deploy
+```
+
+**5. Backend không start / "Property 'refreshToken' does not exist" (Lỗi Prisma Client cũ)**
+```bash
+# Nguyên nhân: Thiếu Prisma Client mới sau khi pull code có schema changes
+# Fix: Chạy 3 lệnh này
+docker compose exec -T backend sh -lc "npx prisma generate"
+docker compose exec -T backend sh -lc "npx prisma migrate deploy"
+docker compose restart backend
 ```
 
 #### Commands hữu ích:
