@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import CustomButton from '@components/CustomButton';
 import { useNavigate, Link } from 'react-router-dom';
+import AuthService from '@services/auth.service';
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
@@ -39,17 +40,23 @@ export default function SignUp() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-
-    // Simulate API call
-    navigate('/login'); // Chuyển đến login sau khi đăng ký thành công
-    // TODO: Thay bằng fetch API (e.g., POST to /signup)
+    await AuthService.signUp({
+      email: formData.email,
+      password: formData.password,
+    })
+      .then(() => {
+        navigate('/inventory');
+      })
+      .catch((error) => {
+        setErrors({ general: error.message || 'Sign up failed' });
+      });
   };
 
   return (

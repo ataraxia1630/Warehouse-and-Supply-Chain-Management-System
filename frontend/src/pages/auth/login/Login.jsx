@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import CustomButton from '@components/CustomButton';
 import { useNavigate, Link } from 'react-router-dom';
+import AuthService from '@services/auth.service';
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -29,24 +30,20 @@ export default function Login() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-
-    // Simulate API call
-    if (
-      formData.email === 'test@example.com' &&
-      formData.password === 'password123'
-    ) {
-      navigate('/inventory');
-    } else {
-      setErrors({ general: 'Invalid email or password' });
-    }
-    // TODO: Thay bằng fetch API (e.g., POST to /login)
+    await AuthService.login(formData)
+      .then(() => {
+        navigate('/inventory');
+      })
+      .catch((error) => {
+        setErrors({ general: error.message || 'Login failed' });
+      });
   };
 
   return (
