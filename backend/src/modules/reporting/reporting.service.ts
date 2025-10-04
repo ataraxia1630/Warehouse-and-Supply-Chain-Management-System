@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Model, Document } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { PrismaService } from '../../database/prisma.service';
+import { PrismaService } from '../../common/prisma/prisma.service';
 
 @Injectable()
 export class ReportingService {
