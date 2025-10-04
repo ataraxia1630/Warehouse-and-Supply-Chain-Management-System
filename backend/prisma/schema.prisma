@@ -186,6 +186,7 @@ model StockMovement {
   note           String?
   createdById    String?           @db.Uuid
   createdAt      DateTime          @default(now())
+  idempotencyKey String?           @unique
 
   productBatch ProductBatch? @relation(fields: [productBatchId], references: [id])
   product      Product?      @relation(fields: [productId], references: [id])
