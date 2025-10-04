@@ -11,7 +11,11 @@ export class InventoryRepository {
     });
   }
 
-  async upsertInventory(productBatchId: string, locationId: string, quantity: number, createdById: string) {
+  async upsertInventory(
+    productBatchId: string,
+    locationId: string,
+    quantity: number,
+  ) {
     return this.prisma.inventory.upsert({
       where: {
         productBatchId_locationId: {
@@ -20,27 +24,32 @@ export class InventoryRepository {
         },
       },
       update: {
-        quantity: {
+        availableQty: {
           increment: quantity,
         },
-        updatedById: createdById,
       },
       create: {
         productBatchId,
         locationId,
-        quantity,
-        createdById,
+        availableQty: quantity,
+        reservedQty: 0,
       },
     });
   }
 
-  async createStockMovement(productBatchId: string, locationId: string, quantity: number, createdById: string, idempotencyKey?: string) {
+  async createStockMovement(
+    productBatchId: string,
+    locationId: string,
+    quantity: number,
+    createdById: string,
+    idempotencyKey?: string,
+  ) {
     return this.prisma.stockMovement.create({
       data: {
         productBatchId,
-        locationId,
+        toLocationId: locationId,
         quantity,
-        movementType: 'INBOUND',
+        movementType: 'purchase_receipt',
         createdById,
         idempotencyKey,
       },

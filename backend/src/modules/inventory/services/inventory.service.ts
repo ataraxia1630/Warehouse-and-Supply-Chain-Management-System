@@ -8,7 +8,7 @@ export class InventoryService {
   constructor(private readonly inventoryRepo: InventoryRepository) {}
 
   async receiveInventory(dto: ReceiveInventoryDto) {
-    // Nếu có idempotencyKey thì kiểm tra
+    // Kiểm tra idempotency
     if (dto.idempotencyKey) {
       const existing = await this.inventoryRepo.findMovementByKey(dto.idempotencyKey);
       if (existing) {
@@ -16,12 +16,11 @@ export class InventoryService {
       }
     }
 
-    // 1. Cập nhật tồn kho
+    // 1. Cập nhật tồn kho (availableQty)
     const inventory = await this.inventoryRepo.upsertInventory(
       dto.productBatchId,
       dto.locationId,
       dto.quantity,
-      dto.createdById,
     );
 
     // 2. Ghi lại movement
