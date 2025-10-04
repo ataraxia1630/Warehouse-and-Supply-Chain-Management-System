@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InventoryRepository } from '../repositories/inventory.repository';
 import { ReceiveInventoryDto } from '../dto/receive-inventory.dto';
+import { DispatchInventoryDto } from '../dto/dispatch-inventory.dto';
 
 @Injectable()
 export class InventoryService {
@@ -33,5 +34,39 @@ export class InventoryService {
     );
 
     return { message: 'Inventory received successfully', inventory, movement };
+  }
+
+  async dispatchInventory(dto: DispatchInventoryDto) {
+    if (dto.idempotencyKey) {
+      const existing = await this.inventoryRepo.findMovementByKey(dto.idempotencyKey);
+      if (existing) {
+        return { message: 'Already processed', movement: existing };
+      }
+    }
+
+    const inventory = await this.inventoryRepo.getInventory(dto.productBatchId, dto.locationId);
+    if (!inventory) {
+      throw new BadRequestException('No inventory found for this product batch at this location');
+    }
+    if (inventory.quantity < dto.quantity) {
+      throw new BadRequestException('Not enough stock available');
+    }
+
+    const updatedInventory = await this.inventoryRepo.decrementInventory(
+      dto.productBatchId,
+      dto.locationId,
+      dto.quantity,
+      dto.createdById,
+    );
+
+    const movement = await this.inventoryRepo.createDispatchMovement(
+      dto.productBatchId,
+      dto.locationId,
+      dto.quantity,
+      dto.createdById,
+      dto.idempotencyKey,
+    );
+
+    return { message: 'Inventory dispatched successfully', inventory: updatedInventory, movement };
   }
 }
