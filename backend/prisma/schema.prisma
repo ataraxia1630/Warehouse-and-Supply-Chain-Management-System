@@ -164,7 +164,7 @@ model Inventory {
   locationId     String   @db.Uuid
   availableQty   Int      @default(0)
   reservedQty    Int      @default(0)
-  updatedAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   productBatch ProductBatch @relation(fields: [productBatchId], references: [id], onDelete: Cascade)
   location     Location     @relation(fields: [locationId], references: [id], onDelete: Cascade)
