@@ -43,21 +43,21 @@ export class InventoryService {
       }
     }
 
-    const inventory = await this.inventoryRepo.getInventory(dto.productBatchId, dto.locationId);
-    if (!inventory) {
-      throw new BadRequestException('No inventory found for this product batch at this location');
-    }
-    if (inventory.quantity < dto.quantity) {
+    // Kiểm tra tồn kho
+    const currentInventory = await this.inventoryRepo.findInventory(dto.productBatchId, dto.locationId);
+    if (!currentInventory || currentInventory.availableQty < dto.quantity) {
       throw new BadRequestException('Not enough stock available');
     }
 
-    const updatedInventory = await this.inventoryRepo.decrementInventory(
+    // Giảm tồn kho
+    const updatedInventory = await this.inventoryRepo.decreaseInventory(
       dto.productBatchId,
       dto.locationId,
       dto.quantity,
       dto.createdById,
     );
 
+    // Tạo movement
     const movement = await this.inventoryRepo.createDispatchMovement(
       dto.productBatchId,
       dto.locationId,

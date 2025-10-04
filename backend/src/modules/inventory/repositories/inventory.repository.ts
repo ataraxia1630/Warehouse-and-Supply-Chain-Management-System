@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/common/prisma/prisma.service'; 
+import { PrismaService } from 'src/common/prisma/prisma.service';
 
 @Injectable()
 export class InventoryRepository {
@@ -11,11 +11,7 @@ export class InventoryRepository {
     });
   }
 
-  async upsertInventory(
-    productBatchId: string,
-    locationId: string,
-    quantity: number,
-  ) {
+  async upsertInventory(productBatchId: string, locationId: string, quantity: number) {
     return this.prisma.inventory.upsert({
       where: {
         productBatchId_locationId: {
@@ -56,44 +52,49 @@ export class InventoryRepository {
     });
   }
 
-  async decrementInventory(productBatchId: string, locationId: string, quantity: number, updatedById: string) {
+  async decreaseInventory(
+    productBatchId: string,
+    locationId: string,
+    quantity: number,
+    createdById: string,
+  ) {
     return this.prisma.inventory.update({
       where: {
-        productBatchId_locationId: {
-          productBatchId,
-          locationId,
-        },
+        productBatchId_locationId: { productBatchId, locationId },
       },
       data: {
-        quantity: {
+        availableQty: {
           decrement: quantity,
         },
-        updatedById,
+        updatedById: createdById,
       },
     });
   }
 
-  async createDispatchMovement(productBatchId: string, locationId: string, quantity: number, createdById: string, idempotencyKey?: string) {
+  async createDispatchMovement(
+    productBatchId: string,
+    locationId: string,
+    quantity: number,
+    createdById: string,
+    idempotencyKey?: string,
+  ) {
     return this.prisma.stockMovement.create({
       data: {
         productBatchId,
         locationId,
         quantity,
-        movementType: 'OUTBOUND',
+        movementType: 'sale_issue', 
         createdById,
         idempotencyKey,
       },
     });
   }
 
-  async getInventory(productBatchId: string, locationId: string) {
-    return this.prisma.inventory.findUnique({
-      where: {
-        productBatchId_locationId: {
-          productBatchId,
-          locationId,
-        },
-      },
-    });
-  }
+  async findInventory(productBatchId: string, locationId: string) {
+  return this.prisma.inventory.findUnique({
+    where: {
+      productBatchId_locationId: { productBatchId, locationId },
+    },
+  });
+}
 }
