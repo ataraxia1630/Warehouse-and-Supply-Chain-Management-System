@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config/configuration';
 import { validationSchema } from './config/validation';
 import { MongooseModule } from '@nestjs/mongoose';
-import { DatabaseModule } from './database/database.module';
 
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { OrderModule } from './modules/order/order.module';
@@ -22,7 +21,6 @@ import { UsersModule } from './users/users.module';
       load: [configuration],
       validationSchema,
     }),
-    DatabaseModule,
     PrismaModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
