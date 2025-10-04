@@ -1,4 +1,4 @@
-import { IsUUID, IsInt, Min, IsOptional } from 'class-validator';
+import { IsUUID, IsInt, Min, IsOptional, IsString } from 'class-validator';
 
 export class ReceiveInventoryDto {
   @IsUUID()
@@ -15,5 +15,6 @@ export class ReceiveInventoryDto {
   createdById: string;
 
   @IsOptional()
+  @IsString()
   idempotencyKey?: string;
 }

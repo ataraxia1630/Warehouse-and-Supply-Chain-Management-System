@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { InventoryService } from '../services/inventory.service';
 import { ReceiveInventoryDto } from '../dto/receive-inventory.dto';
 
@@ -7,7 +7,8 @@ export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
 
   @Post('receive')
-  async receiveInventory(@Body() dto: ReceiveInventoryDto) {
+  @HttpCode(HttpStatus.CREATED)
+  async receive(@Body() dto: ReceiveInventoryDto) {
     return this.inventoryService.receiveInventory(dto);
   }
 }
