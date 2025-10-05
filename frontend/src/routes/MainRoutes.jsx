@@ -5,6 +5,7 @@ import Dashboard from '@pages/dashboard';
 import Login from '@pages/auth/login';
 import Signup from '@pages/auth/signup';
 import NotFound from '@pages/notfound';
+import WarehouseManagement from '@/pages/inventory';
 
 export default function MainRoutes() {
   return (
@@ -15,6 +16,7 @@ export default function MainRoutes() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/inventory" element={<WarehouseManagement />} />
         </Route>
 
         {/* 404 */}
