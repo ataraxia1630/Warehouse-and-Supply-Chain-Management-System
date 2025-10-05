@@ -2,7 +2,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import bcrypt from 'bcrypt';
+import bcryptjs from 'bcryptjs';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { UserRole } from '@prisma/client';
 
@@ -17,7 +17,7 @@ export class AuthService {
   async signup(email: string, password: string, fullName?: string) {
     const existing = await this.usersService.findByEmail(email);
     if (existing) throw new UnauthorizedException('Email already registered');
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcryptjs.hash(password, 10);
     const user = await this.usersService.createUser({ email, passwordHash, fullName });
     return this.issueTokens(user.id, user.email!, user.role);
   }
@@ -25,7 +25,7 @@ export class AuthService {
   async login(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
     if (!user) throw new UnauthorizedException('Invalid credentials');
-    const ok = await bcrypt.compare(password, user.passwordHash ?? '');
+    const ok = await bcryptjs.compare(password, user.passwordHash ?? '');
     if (!ok) throw new UnauthorizedException('Invalid credentials');
     return this.issueTokens(user.id, user.email!, user.role);
   }
