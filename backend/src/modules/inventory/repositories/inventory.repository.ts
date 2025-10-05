@@ -20,9 +20,7 @@ export class InventoryRepository {
         },
       },
       update: {
-        availableQty: {
-          increment: quantity,
-        },
+        availableQty: { increment: quantity },
       },
       create: {
         productBatchId,
@@ -52,21 +50,13 @@ export class InventoryRepository {
     });
   }
 
-  async decreaseInventory(
-    productBatchId: string,
-    locationId: string,
-    quantity: number,
-    createdById: string,
-  ) {
+  async decreaseInventory(productBatchId: string, locationId: string, quantity: number) {
     return this.prisma.inventory.update({
       where: {
         productBatchId_locationId: { productBatchId, locationId },
       },
       data: {
-        availableQty: {
-          decrement: quantity,
-        },
-        updatedById: createdById,
+        availableQty: { decrement: quantity },
       },
     });
   }
@@ -81,9 +71,9 @@ export class InventoryRepository {
     return this.prisma.stockMovement.create({
       data: {
         productBatchId,
-        locationId,
+        fromLocationId: locationId, 
         quantity,
-        movementType: 'sale_issue', 
+        movementType: 'sale_issue',
         createdById,
         idempotencyKey,
       },
@@ -91,10 +81,10 @@ export class InventoryRepository {
   }
 
   async findInventory(productBatchId: string, locationId: string) {
-  return this.prisma.inventory.findUnique({
-    where: {
-      productBatchId_locationId: { productBatchId, locationId },
-    },
-  });
-}
+    return this.prisma.inventory.findUnique({
+      where: {
+        productBatchId_locationId: { productBatchId, locationId },
+      },
+    });
+  }
 }

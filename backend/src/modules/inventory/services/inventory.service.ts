@@ -8,7 +8,7 @@ export class InventoryService {
   constructor(private readonly inventoryRepo: InventoryRepository) {}
 
   async receiveInventory(dto: ReceiveInventoryDto) {
-    // Kiểm tra idempotency
+    // Idempotency check
     if (dto.idempotencyKey) {
       const existing = await this.inventoryRepo.findMovementByKey(dto.idempotencyKey);
       if (existing) {
@@ -16,14 +16,14 @@ export class InventoryService {
       }
     }
 
-    // 1. Cập nhật tồn kho (availableQty)
+    // 1. Increase inventory
     const inventory = await this.inventoryRepo.upsertInventory(
       dto.productBatchId,
       dto.locationId,
       dto.quantity,
     );
 
-    // 2. Ghi lại movement
+    // 2. Create stock movement (purchase receipt)
     const movement = await this.inventoryRepo.createStockMovement(
       dto.productBatchId,
       dto.locationId,
@@ -36,6 +36,7 @@ export class InventoryService {
   }
 
   async dispatchInventory(dto: DispatchInventoryDto) {
+    // Idempotency check
     if (dto.idempotencyKey) {
       const existing = await this.inventoryRepo.findMovementByKey(dto.idempotencyKey);
       if (existing) {
@@ -43,21 +44,20 @@ export class InventoryService {
       }
     }
 
-    // Kiểm tra tồn kho
+    // Check stock
     const currentInventory = await this.inventoryRepo.findInventory(dto.productBatchId, dto.locationId);
     if (!currentInventory || currentInventory.availableQty < dto.quantity) {
       throw new BadRequestException('Not enough stock available');
     }
 
-    // Giảm tồn kho
+    // 1. Decrease inventory
     const updatedInventory = await this.inventoryRepo.decreaseInventory(
       dto.productBatchId,
       dto.locationId,
       dto.quantity,
-      dto.createdById,
     );
 
-    // Tạo movement
+    // 2. Create stock movement (sale issue)
     const movement = await this.inventoryRepo.createDispatchMovement(
       dto.productBatchId,
       dto.locationId,
