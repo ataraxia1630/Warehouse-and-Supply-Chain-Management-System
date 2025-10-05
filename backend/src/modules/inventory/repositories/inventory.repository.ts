@@ -3,7 +3,7 @@ import { PrismaService } from 'src/common/prisma/prisma.service';
 
 @Injectable()
 export class InventoryRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(public readonly prisma: PrismaService) {}
 
   async findMovementByKey(idempotencyKey: string) {
     return this.prisma.stockMovement.findUnique({
@@ -86,5 +86,20 @@ export class InventoryRepository {
         productBatchId_locationId: { productBatchId, locationId },
       },
     });
+  }
+
+  async findProductBatch(productBatchId: string) {
+    if (!productBatchId) return null;
+    return this.prisma.productBatch.findUnique({ where: { id: productBatchId } });
+  }
+
+  async findLocation(locationId: string) {
+    if (!locationId) return null;
+    return this.prisma.location.findUnique({ where: { id: locationId } });
+  }
+
+  async findUser(userId: string) {
+    if (!userId) return null;
+    return this.prisma.user.findUnique({ where: { id: userId } });
   }
 }
