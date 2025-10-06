@@ -18,10 +18,7 @@ describe('InventoryService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        InventoryService,
-        { provide: InventoryRepository, useValue: repo },
-      ],
+      providers: [InventoryService, { provide: InventoryRepository, useValue: repo }],
     }).compile();
 
     service = module.get<InventoryService>(InventoryService);

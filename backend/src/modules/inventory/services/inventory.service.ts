@@ -81,7 +81,10 @@ export class InventoryService {
     }
 
     // Check current inventory
-    const currentInventory = await this.inventoryRepo.findInventory(dto.productBatchId, dto.locationId);
+    const currentInventory = await this.inventoryRepo.findInventory(
+      dto.productBatchId,
+      dto.locationId,
+    );
     if (!currentInventory) {
       throw new NotFoundException('No inventory row for this productBatch/location');
     }

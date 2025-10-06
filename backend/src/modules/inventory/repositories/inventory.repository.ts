@@ -71,7 +71,7 @@ export class InventoryRepository {
     return this.prisma.stockMovement.create({
       data: {
         productBatchId,
-        fromLocationId: locationId, 
+        fromLocationId: locationId,
         quantity,
         movementType: 'sale_issue',
         createdById,
