@@ -15,6 +15,9 @@ describe('InventoryService', () => {
       findInventory: jest.fn(),
       decreaseInventory: jest.fn(),
       createDispatchMovement: jest.fn(),
+      findProductBatch: jest.fn().mockResolvedValue({ id: 'pb1' }),
+      findLocation: jest.fn().mockResolvedValue({ id: 'loc1' }),
+      findUser: jest.fn().mockResolvedValue({ id: 'user1' }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
