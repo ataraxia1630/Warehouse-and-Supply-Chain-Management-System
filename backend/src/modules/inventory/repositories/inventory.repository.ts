@@ -51,6 +51,39 @@ export class InventoryRepository {
     });
   }
 
+  /**
+   * Transactional receive: upsert inventory (increment) and create movement in single transaction.
+   */
+  async receiveInventoryTx(
+    productBatchId: string,
+    locationId: string,
+    quantity: number,
+    createdById?: string,
+    idempotencyKey?: string,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      // upsert inventory using transaction client
+      const inv = await tx.inventory.upsert({
+        where: { productBatchId_locationId: { productBatchId, locationId } },
+        update: { availableQty: { increment: quantity } },
+        create: { productBatchId, locationId, availableQty: quantity, reservedQty: 0 },
+      });
+
+      const movement = await tx.stockMovement.create({
+        data: {
+          productBatchId,
+          toLocationId: locationId,
+          quantity,
+          movementType: StockMovementType.purchase_receipt,
+          createdById,
+          idempotencyKey,
+        },
+      });
+
+      return { inventory: inv, movement };
+    });
+  }
+
   async decreaseInventory(productBatchId: string, locationId: string, quantity: number) {
     return this.prisma.inventory.update({
       where: {
@@ -59,6 +92,55 @@ export class InventoryRepository {
       data: {
         availableQty: { decrement: quantity },
       },
+    });
+  }
+
+  /**
+   * Transactional dispatch: decrement inventory only if enough availableQty, and create movement in same transaction.
+   * Returns { inventory, movement } on success. Throws if not enough stock.
+   */
+  async dispatchInventoryTx(
+    productBatchId: string,
+    locationId: string,
+    quantity: number,
+    createdById?: string,
+    idempotencyKey?: string,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      // Attempt conditional decrement using updateMany to ensure availableQty >= quantity.
+      const updateResult = await tx.inventory.updateMany({
+        where: {
+          productBatchId,
+          locationId,
+          availableQty: { gte: quantity },
+        },
+        data: {
+          availableQty: { decrement: quantity },
+        },
+      });
+
+      if (updateResult.count === 0) {
+        // No rows updated -> not enough stock or inventory missing
+        throw new Error('NotEnoughStock');
+      }
+
+      // Get the updated inventory row
+      const inv = await tx.inventory.findUnique({
+        where: { productBatchId_locationId: { productBatchId, locationId } },
+      });
+
+      const movement = await tx.stockMovement.create({
+        data: {
+          productBatchId,
+          fromLocationId: locationId,
+          quantity,
+          movementType: StockMovementType.sale_issue,
+          createdById,
+          idempotencyKey,
+        },
+      });
+
+      return { inventory: inv, movement };
     });
   }
 

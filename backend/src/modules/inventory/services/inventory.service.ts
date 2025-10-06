@@ -30,19 +30,12 @@ export class InventoryService {
     if (dto.idempotencyKey) {
       const existing = await this.inventoryRepo.findMovementByKey(dto.idempotencyKey);
       if (existing) {
-        return { message: 'Already processed', movement: existing };
+        return { success: true, idempotent: true, movement: existing };
       }
     }
 
-    // 1. Update inventory (availableQty)
-    const inventory = await this.inventoryRepo.upsertInventory(
-      dto.productBatchId,
-      dto.locationId,
-      dto.quantity,
-    );
-
-    // 2. Create movement (purchase_receipt)
-    const movement = await this.inventoryRepo.createStockMovement(
+    // Transactional receive: upsert inventory and create movement atomically
+    const { inventory, movement } = await this.inventoryRepo.receiveInventoryTx(
       dto.productBatchId,
       dto.locationId,
       dto.quantity,
@@ -50,7 +43,7 @@ export class InventoryService {
       dto.idempotencyKey,
     );
 
-    return { message: 'Inventory received successfully', inventory, movement };
+    return { success: true, inventory, movement };
   }
 
   async dispatchInventory(dto: DispatchInventoryDto) {
@@ -76,37 +69,25 @@ export class InventoryService {
     if (dto.idempotencyKey) {
       const existing = await this.inventoryRepo.findMovementByKey(dto.idempotencyKey);
       if (existing) {
-        return { message: 'Already processed', movement: existing };
+        return { success: true, idempotent: true, movement: existing };
       }
     }
 
-    // Check current inventory
-    const currentInventory = await this.inventoryRepo.findInventory(
-      dto.productBatchId,
-      dto.locationId,
-    );
-    if (!currentInventory) {
-      throw new NotFoundException('No inventory row for this productBatch/location');
+    try {
+      const { inventory, movement } = await this.inventoryRepo.dispatchInventoryTx(
+        dto.productBatchId,
+        dto.locationId,
+        dto.quantity,
+        dto.createdById,
+        dto.idempotencyKey,
+      );
+
+      return { success: true, inventory, movement };
+    } catch (err) {
+      if (err instanceof Error && err.message === 'NotEnoughStock') {
+        throw new BadRequestException('Not enough stock available');
+      }
+      throw err;
     }
-    if (currentInventory.availableQty < dto.quantity) {
-      throw new BadRequestException('Not enough stock available');
-    }
-
-    // Decrement inventory and create movement
-    const updatedInventory = await this.inventoryRepo.decreaseInventory(
-      dto.productBatchId,
-      dto.locationId,
-      dto.quantity,
-    );
-
-    const movement = await this.inventoryRepo.createDispatchMovement(
-      dto.productBatchId,
-      dto.locationId,
-      dto.quantity,
-      dto.createdById,
-      dto.idempotencyKey,
-    );
-
-    return { message: 'Inventory dispatched successfully', inventory: updatedInventory, movement };
   }
 }
