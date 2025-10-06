@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { InventoryRepository } from '../repositories/inventory.repository';
 import { ReceiveInventoryDto } from '../dto/receive-inventory.dto';
 import { DispatchInventoryDto } from '../dto/dispatch-inventory.dto';
@@ -35,15 +36,28 @@ export class InventoryService {
     }
 
     // Transactional receive: upsert inventory and create movement atomically
-    const { inventory, movement } = await this.inventoryRepo.receiveInventoryTx(
-      dto.productBatchId,
-      dto.locationId,
-      dto.quantity,
-      dto.createdById,
-      dto.idempotencyKey,
-    );
+    try {
+      const { inventory, movement } = await this.inventoryRepo.receiveInventoryTx(
+        dto.productBatchId,
+        dto.locationId,
+        dto.quantity,
+        dto.createdById,
+        dto.idempotencyKey,
+      );
 
-    return { success: true, inventory, movement };
+      return { success: true, inventory, movement };
+    } catch (err) {
+      // If movement creation failed due to unique constraint on idempotencyKey, return existing movement
+      if (
+        dto.idempotencyKey &&
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002'
+      ) {
+        const existing = await this.inventoryRepo.findMovementByKey(dto.idempotencyKey);
+        if (existing) return { success: true, idempotent: true, movement: existing };
+      }
+      throw err;
+    }
   }
 
   async dispatchInventory(dto: DispatchInventoryDto) {
@@ -87,6 +101,17 @@ export class InventoryService {
       if (err instanceof Error && err.message === 'NotEnoughStock') {
         throw new BadRequestException('Not enough stock available');
       }
+
+      // If unique constraint on idempotencyKey occurred concurrently, return existing movement
+      if (
+        dto.idempotencyKey &&
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002'
+      ) {
+        const existing = await this.inventoryRepo.findMovementByKey(dto.idempotencyKey);
+        if (existing) return { success: true, idempotent: true, movement: existing };
+      }
+
       throw err;
     }
   }
