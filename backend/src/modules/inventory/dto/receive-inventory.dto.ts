@@ -11,8 +11,9 @@ export class ReceiveInventoryDto {
   @Min(1)
   quantity: number;
 
+  @IsOptional()
   @IsUUID()
-  createdById: string;
+  createdById?: string;
 
   @IsOptional()
   @IsString()

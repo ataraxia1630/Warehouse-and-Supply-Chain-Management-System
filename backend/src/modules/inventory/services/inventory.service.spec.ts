@@ -54,7 +54,7 @@ describe('InventoryService', () => {
         createdById: 'user1',
       });
 
-      expect(result.inventory.id).toBe('inv1');
+      expect(result.inventory!.id).toBe('inv1');
       expect(result.movement.id).toBe('move1');
     });
   });
@@ -85,7 +85,7 @@ describe('InventoryService', () => {
         createdById: 'user1',
       });
 
-      expect(result.inventory.id).toBe('inv2');
+      expect(result.inventory!.id).toBe('inv2');
       expect(result.movement.id).toBe('move2');
     });
   });

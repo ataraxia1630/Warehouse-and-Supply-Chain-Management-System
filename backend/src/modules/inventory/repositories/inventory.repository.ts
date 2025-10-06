@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
+import { StockMovementType } from '@prisma/client';
 
 @Injectable()
 export class InventoryRepository {
@@ -43,7 +44,7 @@ export class InventoryRepository {
         productBatchId,
         toLocationId: locationId,
         quantity,
-        movementType: 'purchase_receipt',
+        movementType: StockMovementType.purchase_receipt,
         createdById,
         idempotencyKey,
       },
@@ -73,7 +74,7 @@ export class InventoryRepository {
         productBatchId,
         fromLocationId: locationId,
         quantity,
-        movementType: 'sale_issue',
+        movementType: StockMovementType.sale_issue,
         createdById,
         idempotencyKey,
       },

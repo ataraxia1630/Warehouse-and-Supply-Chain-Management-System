@@ -11,8 +11,9 @@ export class DispatchInventoryDto {
   @Min(1)
   quantity: number;
 
+  @IsOptional()
   @IsUUID()
-  createdById: string;
+  createdById?: string;
 
   @IsOptional()
   @IsString()
