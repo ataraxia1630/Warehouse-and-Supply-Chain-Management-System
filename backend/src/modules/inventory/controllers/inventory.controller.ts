@@ -9,8 +9,6 @@ import {
   InventoryIdempotentResponseDto,
   ErrorResponseDto,
 } from '../dto/response.dto';
-import { InventoryDto } from '../dto/inventory.dto';
-import { MovementDto } from '../dto/movement.dto';
 
 @ApiTags('inventory')
 @Controller('inventory')

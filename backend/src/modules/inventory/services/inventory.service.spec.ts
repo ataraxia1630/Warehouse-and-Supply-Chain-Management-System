@@ -43,7 +43,10 @@ describe('InventoryService', () => {
 
     it('should create new inventory and movement', async () => {
       (repo.findMovementByKey as jest.Mock).mockResolvedValue(null);
-      (repo.receiveInventoryTx as jest.Mock).mockResolvedValue({ inventory: { id: 'inv1' }, movement: { id: 'move1' } });
+      (repo.receiveInventoryTx as jest.Mock).mockResolvedValue({
+        inventory: { id: 'inv1' },
+        movement: { id: 'move1' },
+      });
 
       const result = await service.receiveInventory({
         productBatchId: 'pb1',
@@ -63,14 +66,27 @@ describe('InventoryService', () => {
       (repo.dispatchInventoryTx as jest.Mock).mockRejectedValue(new Error('NotEnoughStock'));
 
       await expect(
-        service.dispatchInventory({ productBatchId: 'pb1', locationId: 'loc1', quantity: 10, createdById: 'user1' }),
+        service.dispatchInventory({
+          productBatchId: 'pb1',
+          locationId: 'loc1',
+          quantity: 10,
+          createdById: 'user1',
+        }),
       ).rejects.toThrow(BadRequestException);
     });
 
     it('should decrease stock and create movement', async () => {
-      (repo.dispatchInventoryTx as jest.Mock).mockResolvedValue({ inventory: { id: 'inv2' }, movement: { id: 'move2' } });
+      (repo.dispatchInventoryTx as jest.Mock).mockResolvedValue({
+        inventory: { id: 'inv2' },
+        movement: { id: 'move2' },
+      });
 
-      const result = await service.dispatchInventory({ productBatchId: 'pb1', locationId: 'loc1', quantity: 10, createdById: 'user1' });
+      const result = await service.dispatchInventory({
+        productBatchId: 'pb1',
+        locationId: 'loc1',
+        quantity: 10,
+        createdById: 'user1',
+      });
 
       expect(result.inventory!.id).toBe('inv2');
       expect(result.movement.id).toBe('move2');

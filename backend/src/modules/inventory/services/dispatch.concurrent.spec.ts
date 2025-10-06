@@ -1,6 +1,7 @@
 import { InventoryService } from './inventory.service';
 import { InventoryRepository } from '../repositories/inventory.repository';
 import { BadRequestException } from '@nestjs/common';
+import { DispatchInventoryDto } from '../dto/dispatch-inventory.dto';
 
 // A simple in-memory mock repository to simulate atomic updateMany behavior
 class InMemoryRepoMock {
@@ -12,13 +13,13 @@ class InMemoryRepoMock {
   }
 
   async findProductBatch(id: string) {
-    return id === 'pb1' ? { id } : null;
+    return await Promise.resolve(id === 'pb1' ? { id } : null);
   }
   async findLocation(id: string) {
-    return id === 'loc1' ? { id } : null;
+    return await Promise.resolve(id === 'loc1' ? { id } : null);
   }
   async findUser(id: string) {
-    return id === 'user1' ? { id } : null;
+    return await Promise.resolve(id === 'user1' ? { id } : null);
   }
 
   // emulate dispatchInventoryTx using an atomic check-and-decrement
@@ -26,8 +27,8 @@ class InMemoryRepoMock {
     productBatchId: string,
     locationId: string,
     quantity: number,
-    createdById?: string,
-    idempotencyKey?: string,
+    //createdById?: string,
+    //idempotencyKey?: string,
   ) {
     const key = `${productBatchId}:${locationId}`;
     const inv = this.inventories[key];
@@ -43,8 +44,8 @@ class InMemoryRepoMock {
     return { inventory: { ...inv }, movement };
   }
 
-  async findMovementByKey(_k: string) {
-    return null;
+  async findMovementByKey(/*_k: string*/) {
+    return await Promise.resolve(null);
   }
 }
 
@@ -58,7 +59,7 @@ describe('concurrent dispatch', () => {
       locationId: 'loc1',
       quantity: 7,
       createdById: 'user1',
-    } as any;
+    } as DispatchInventoryDto;
 
     // run two dispatches concurrently
     const p1 = service.dispatchInventory(dto);
@@ -72,7 +73,7 @@ describe('concurrent dispatch', () => {
     // starting with 10 qty, two attempts of 7 -> only one should succeed
     expect(fulfilled.length).toBe(1);
     expect(rejected.length).toBe(1);
-    const rej = rejected[0] as PromiseRejectedResult;
+    const rej = rejected[0];
     expect(rej.reason).toBeInstanceOf(BadRequestException);
   });
 });
