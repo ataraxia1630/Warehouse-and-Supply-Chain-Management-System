@@ -8,11 +8,14 @@ export class MongoDBService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     try {
-      const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URL || "mongodb://mongo_user:mongo_pass@localhost:27017/warehouse_db?authSource=admin";
+      const mongoUri =
+        process.env.MONGODB_URI ||
+        process.env.MONGO_URL ||
+        'mongodb://mongo_user:mongo_pass@localhost:27017/warehouse_db?authSource=admin';
       if (!mongoUri) {
         throw new Error('MONGODB_URI environment variable is not defined');
       }
-      
+
       this.client = new MongoClient(mongoUri);
       await this.client.connect();
       this.db = this.client.db('warehouse_analytics');

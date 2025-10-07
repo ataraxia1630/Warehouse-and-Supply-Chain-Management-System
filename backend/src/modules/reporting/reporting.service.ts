@@ -33,7 +33,7 @@ export class ReportingService {
     action: string,
     entityType: string,
     entityId: string,
-    metadata: any = {}
+    metadata: Record<string, unknown> = {},
   ) {
     const logEntry = {
       userId,
@@ -44,9 +44,7 @@ export class ReportingService {
       timestamp: new Date(),
     };
 
-    return await this.mongoService
-      .getCollection('user_actions')
-      .insertOne(logEntry);
+    return await this.mongoService.getCollection('user_actions').insertOne(logEntry);
   }
 
   async getUserActivityLogs(userId: string, limit: number = 50) {
