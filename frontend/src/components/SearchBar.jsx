@@ -9,7 +9,14 @@ export default function SearchBar({ searchTerm, setSearchTerm, placeholder }) {
       size="small"
       value={searchTerm}
       onChange={(e) => setSearchTerm(e.target.value)}
-      sx={{ minWidth: 300 }}
+      sx={{
+        minWidth: 300,
+        "& .MuiOutlinedInput-root": {
+          "&.Mui-focused fieldset": {
+            borderColor: "#7F408E",
+          },
+        },
+      }}
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">

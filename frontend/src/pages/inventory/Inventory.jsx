@@ -107,7 +107,7 @@ const WarehouseManagement = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2}}>
       <InventoryToolbar
         menuItems={menuItems}
         selectedMenu={selectedMenu}

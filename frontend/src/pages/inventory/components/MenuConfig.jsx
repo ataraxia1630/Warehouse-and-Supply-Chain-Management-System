@@ -5,6 +5,7 @@ import {
   LocalShipping,
   Moving,
 } from "@mui/icons-material";
+import BreakfastDiningIcon from '@mui/icons-material/BreakfastDining';
 
 export const menuItems = [
   {
@@ -37,7 +38,7 @@ export const menuItems = [
   {
     id: "products",
     label: "Products",
-    icon: <InventoryIcon />,
+    icon: <BreakfastDiningIcon />,
     columns: [
       { id: "stt", label: "STT" },
       { id: "sku", label: "SKU" },

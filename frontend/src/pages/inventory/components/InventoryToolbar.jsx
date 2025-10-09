@@ -1,4 +1,4 @@
-import { Toolbar, Button } from "@mui/material";
+import { Stack, Button } from "@mui/material";
 
 export default function InventoryToolbar({
   menuItems,
@@ -6,13 +6,12 @@ export default function InventoryToolbar({
   onSelect,
 }) {
   return (
-    <Toolbar
-      sx={{
-        background: "#f5f5f5",
-        borderRadius: 1,
-        display: "flex",
-        justifyContent: "space-between",
-      }}
+    <Stack
+      direction="row"
+      justifyContent="space-between"
+      flexWrap="wrap"
+      gap={1}
+      sx={{ background: "#f5f5f5", borderRadius: 1, p: 1 }}
     >
       {menuItems.map((item) => (
         <Button
@@ -24,6 +23,6 @@ export default function InventoryToolbar({
           {item.label}
         </Button>
       ))}
-    </Toolbar>
+    </Stack>
   );
 }

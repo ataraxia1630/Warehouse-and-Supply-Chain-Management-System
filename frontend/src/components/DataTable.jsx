@@ -220,8 +220,8 @@ export default function DataTable({
                   {onEdit && (
                     <IconButton
                       size="small"
-                      color="warning"
                       onClick={() => onEdit(row)}
+                      sx={{ color: "#1a7d45ff" }}
                     >
                       <Edit />
                     </IconButton>
