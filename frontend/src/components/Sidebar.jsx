@@ -57,6 +57,9 @@ const Sidebar = ({ width = 264, headerHeight = 60 }) => {
                       fontWeight: 600,
                       color: 'black',
                     },
+                    '&:hover': {
+                      backgroundColor: '#f2f2f2',
+                    },
                     backgroundColor: '#f2f2f2',
                   },
                   '&:hover': {
