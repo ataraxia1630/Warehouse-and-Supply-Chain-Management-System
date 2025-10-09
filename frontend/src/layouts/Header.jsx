@@ -1,4 +1,4 @@
-import { Box, IconButton, Avatar } from '@mui/material';
+import { Box, IconButton, Avatar, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 export default function Header({ height = 60 }) {
@@ -12,23 +12,34 @@ export default function Header({ height = 60 }) {
         bgcolor: '#ffffff',
         position: 'fixed',
         display: 'flex',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '0 24px',
         borderBottom: '1px solid #e0e0e0',
         top: '0',
       }}
     >
+      <Typography
+        sx={{
+          marginLeft: '5px',
+          color: 'primary.main',
+          fontWeight: 'bold',
+          fontSize: '18px',
+          userSelect: 'none',
+        }}
+      >
+        WSCMS
+      </Typography>
       <Avatar
         alt="User Avatar"
         src="/path/to/avatar.jpg"
         sx={{
-          width: '40px',
-          height: '40px',
+          width: '32px',
+          height: '32px',
           '&:hover': {
             cursor: 'pointer',
-            boxShadow: '0 0 8px rgba(0, 0, 0, 0.2)',
+            border: 'solid black 0.1px',
           },
+          marginRight: '20px',
         }}
         onClick={() => navigate('/profile')}
       />
