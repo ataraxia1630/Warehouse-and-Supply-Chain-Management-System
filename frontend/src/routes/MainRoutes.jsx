@@ -14,10 +14,10 @@ export default function MainRoutes() {
         {/* Route cha có Layout */}
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
           <Route path="/inventory" element={<WarehouseManagement />} />
         </Route>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />

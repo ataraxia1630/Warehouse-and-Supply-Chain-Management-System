@@ -1,21 +1,38 @@
 import Header from './Header';
 import Footer from './Footer';
+import Sidebar from '@components/Sidebar';
 import { Outlet } from 'react-router-dom';
-import { Container } from '@mui/material';
+import { Box } from '@mui/material';
 
 export default function Layout() {
+  const sidebarWidth = 208;
+  const headerHeight = 48;
   return (
-    <div
-      style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}
-    >
-      <Header />
-      <main style={{ flex: 1 }}>
-        <Container maxWidth="lg" sx={{ py: 3 }}>
-          {/* Outlet = chỗ hiển thị page con */}
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <Header height={headerHeight} />
+
+      <Box
+        sx={{
+          display: 'flex',
+          flex: 1,
+          marginTop: `${headerHeight}px`,
+          height: `calc(100vh - ${headerHeight}px)`,
+        }}
+      >
+        <Sidebar width={sidebarWidth} headerHeight={headerHeight + 1} />
+        <Box
+          component="main"
+          sx={{
+            flex: 1,
+            marginLeft: `${sidebarWidth}px`,
+            overflowY: 'auto',
+            backgroundColor: '#fafafa',
+            p: 3,
+          }}
+        >
           <Outlet />
-        </Container>
-      </main>
-      <Footer />
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 }
