@@ -15,18 +15,22 @@ const ChartContainer = ({
   dropdown = "Jun 2024",
 }) => (
   <Card>
-    <CardContent>
+    <CardContent sx={{ p: 2 }}>
       <Box
         display="flex"
         justifyContent="space-between"
         alignItems="center"
         mb={2}
       >
-        <Typography variant="h6" fontWeight="medium">
+        <Typography variant="subtitle1" fontWeight="medium">
           {title}
         </Typography>
         {showDropdown && (
-          <Select value={dropdown} size="small" sx={{ minWidth: 120 }}>
+          <Select
+            value={dropdown}
+            size="small"
+            sx={{ minWidth: 120, fontSize: "14px" }}
+          >
             <MenuItem value={dropdown}>{dropdown}</MenuItem>
           </Select>
         )}

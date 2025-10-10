@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   Card,
@@ -8,20 +7,6 @@ import {
   IconButton,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
 import MetricCard from "@/components/MetricCard";
 import ChartContainer from "@/components/ChartContainer";
 import MonthlyOrderChart from "@/components/MonthlyOrderChart";
@@ -75,13 +60,12 @@ const Dashboard = () => {
   return (
     <Box
       sx={{
-        padding: 3,
         width: "100%",
         maxWidth: "100vw",
         overflowX: "hidden",
         display: "flex",
         flexDirection: "column",
-        gap: 3,
+        gap: 2,
         boxSizing: "border-box",
       }}
     >
@@ -102,11 +86,11 @@ const Dashboard = () => {
         />
         <MetricCard
           title="Total revenue"
-          value="$1,500,000"
+          value="$1.5M"
           change="18%"
           bg_color="error"
         />
-        <MetricCard title="Total orders received" value="8,000" change="16%" />
+        <MetricCard title="Total orders" value="8k" change="16%" />
         <MetricCard title="On-Time delivery" value="92%" change="18%" />
       </Box>
 
@@ -115,22 +99,19 @@ const Dashboard = () => {
         sx={{
           display: "flex",
           flexWrap: "wrap",
-          gap: 3,
+          gap: 2,
           justifyContent: "space-between",
           maxWidth: "100%",
         }}
       >
         <Box sx={{ flex: 2, minWidth: 0 }}>
-          <ChartContainer title="Monthly order volume">
+          <ChartContainer title="Monthly order">
             <MonthlyOrderChart data={monthlyData} />
           </ChartContainer>
         </Box>
 
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <ChartContainer
-            title="Revenue distribution by region"
-            showDropdown={false}
-          >
+          <ChartContainer title="Revenue by region" showDropdown={false}>
             <RevenuePieChart data={regionData} />
           </ChartContainer>
         </Box>
@@ -141,7 +122,7 @@ const Dashboard = () => {
         sx={{
           display: "flex",
           flexWrap: "wrap",
-          gap: 3,
+          gap: 2,
           justifyContent: "space-between",
           maxWidth: "100%",
         }}
@@ -176,7 +157,7 @@ const Dashboard = () => {
                   display="flex"
                   alignItems="center"
                   justifyContent="space-between"
-                  mb={2}
+                  mb={1.5}
                 >
                   <Box display="flex" alignItems="center">
                     <Avatar

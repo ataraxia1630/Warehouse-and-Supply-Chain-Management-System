@@ -10,8 +10,8 @@ import {
 } from "recharts";
 
 const MonthlyOrderChart = ({ data }) => (
-  <ResponsiveContainer width="100%" height={300}>
-    <LineChart data={data}>
+  <ResponsiveContainer width="100%" height={250}>
+    <LineChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="month" />
       <YAxis />

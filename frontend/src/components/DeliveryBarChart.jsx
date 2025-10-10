@@ -10,8 +10,8 @@ import {
 } from "recharts";
 
 const DeliveryBarChart = ({ data }) => (
-  <ResponsiveContainer width="100%" height={300}>
-    <BarChart data={data}>
+  <ResponsiveContainer width="100%" height={250}>
+    <BarChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="day" />
       <YAxis />

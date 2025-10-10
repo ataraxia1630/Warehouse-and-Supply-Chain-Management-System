@@ -9,42 +9,37 @@ const MetricCard = ({
   bg_color = "success",
   subtitle = "Last month",
 }) => (
-  <Card sx={{ height: "100%" }}>
-    <CardContent>
+  <Card sx={{ flex: "1 1 200px" }}>
+    <CardContent sx={{ p: 2 }}>
       <Box
         display="flex"
         justifyContent="space-between"
         alignItems="flex-start"
-        mb={1}
+        mb={0.5}
       >
-        <Typography variant="body2" color="text.secondary" mr={2}>
+        <Typography variant="body2" color="text.secondary" noWrap>
           {title}
         </Typography>
         <Chip
-          icon={<TrendingUpIcon sx={{ fontSize: 14, color: "white" }} />}
+          icon={<TrendingUpIcon sx={{ fontSize: 14 }} />}
           label={change}
           size="small"
           sx={{
             height: 20,
-            backgroundColor: (theme) => theme.palette[bg_color].main,
             color: "white",
+            backgroundColor: (theme) => theme.palette[bg_color].main,
             "& .MuiChip-icon": {
               color: "white",
             },
           }}
         />
       </Box>
-      <Typography variant="h4" fontWeight="bold" mb={0.5}>
+      <Typography variant="h6" fontWeight="bold" mb={0.5}>
         {value}
       </Typography>
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="caption" color="text.secondary">
-          {subtitle}
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          →
-        </Typography>
-      </Box>
+      <Typography variant="caption" color="text.secondary">
+        {subtitle}
+      </Typography>
     </CardContent>
   </Card>
 );

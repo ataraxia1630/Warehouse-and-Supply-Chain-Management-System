@@ -25,7 +25,12 @@ export default function ActionButtons({ onAdd, onImport, onExport, onPrint }) {
           color="primary"
           startIcon={<Add />}
           onClick={onAdd}
-          sx={{ textTransform: "none", background: "#3E468A" }}
+          sx={{
+            textTransform: "none",
+            background: "#3E468A",
+            px: 1.5,
+            py: 1,
+          }}
         >
           Thêm
         </Button>

@@ -1,30 +1,30 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#7f408e',
+      main: "#7f408e",
     },
     secondary: {
-      main: '#3e468a',
+      main: "#3e468a",
     },
     highlight: {
-      main: '#ff7b47',
+      main: "#ff7b47",
     },
     background: {
-      default: '#ffffff',
+      default: "#ffffff",
     },
   },
   typography: {
-    fontFamily: 'Roboto, sans-serif',
+    fontFamily: "Roboto, sans-serif",
   },
   components: {
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          '&.Mui-focused': {
-            '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#7f408e',
+          "&.Mui-focused": {
+            "& .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#7f408e",
             },
           },
         },
@@ -33,7 +33,6 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          padding: '12px 0',
           fontWeight: 500,
         },
       },
