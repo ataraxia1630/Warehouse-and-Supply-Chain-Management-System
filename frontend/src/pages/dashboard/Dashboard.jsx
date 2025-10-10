@@ -6,6 +6,7 @@ import {
   Avatar,
   IconButton,
 } from "@mui/material";
+import TrendingDownIcon from "@mui/icons-material/TrendingDown"
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import MetricCard from "@/components/MetricCard";
 import ChartContainer from "@/components/ChartContainer";
@@ -69,7 +70,6 @@ const Dashboard = () => {
         boxSizing: "border-box",
       }}
     >
-      {/* Metrics Section */}
       <Box
         sx={{
           display: "flex",
@@ -89,6 +89,7 @@ const Dashboard = () => {
           value="$1.5M"
           change="18%"
           bg_color="error"
+          icon={TrendingDownIcon}
         />
         <MetricCard title="Total orders" value="8k" change="16%" />
         <MetricCard title="On-Time delivery" value="92%" change="18%" />
